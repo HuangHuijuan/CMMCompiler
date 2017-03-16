@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="CMMComplier:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CMMComplier_jar</output-path>
+    <root id="archive" name="CMMComplier.jar">
+      <element id="module-output" name="CMMCompiler" />
+      <element id="module-output" name="CMMComplier" />
+    </root>
+  </artifact>
+</component>

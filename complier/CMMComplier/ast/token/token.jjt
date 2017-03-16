@@ -1,0 +1,211 @@
+/*1。不支持中文注释
+2.不支持int a =9 ,b =10; 支持int a,b =9;
+3.if ,while后面的语句一定要{} else可以没有
+4.已用所用按上面三条修改后的用例进行测试，全部通过
+*/
+options {
+    MULTI=true;
+    KEEP_LINE_COLUMN = false;
+    
+}
+
+PARSER_BEGIN(Parse)
+
+public class Parse {
+    
+    public static void main(String args[]) throws ParseException {
+    Parse parser = new Parse(System.in);
+    
+    try {
+	ASTstart n = parser.start();
+	n.dump("");	
+	System.out.println("OK.");
+    } catch (Exception e) {
+    System.out.println("Error");
+    System.out.println(e.getMessage());
+    parser.ReInit(System.in);
+    } catch (Error e) {
+    System.out.println("Error");
+    System.out.println(e.getMessage());
+    
+    }
+    
+    }
+}
+
+PARSER_END(Parse)
+
+SKIP :
+{
+    " "
+        |	"\r"
+        |	"\t"
+        |	"\n"
+        | < "//"(~["\n","\r"])*("\n"|"\r"|"\r\n") >
+        | < "/*"(~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
+}
+TOKEN:
+{
+    <ASSIGN:"=">
+    | <GT:">">
+    | <LT:"<">
+    | <EQ:"==">
+    | <LE:"<=">
+    | <GE:">=">
+    | <NE:"!="
+    | "<>">
+    | <AND:"&&">
+    | <OR:"||">
+    | <COMMA:",">
+}
+TOKEN:
+{
+    
+    <BOOLEAN:"boolean">
+    |<CHAR:"char">
+    |<INT:"int">
+    |<REAL:"real">
+}
+TOKEN : 
+{
+    < PLUS: "+" >
+    |<MINUS: "-" >
+    |<MULTIPLY: "*" >
+    |<DIVIDE: "/" >
+    |<MOD:"%">
+}
+TOKEN :
+{
+    
+    < INTEGER:["1"-"9"](<DIGIT>)*
+    |(<DIGIT>)+>
+    |<STRING:["\""](~["\""])*["\""]>
+    |<DOUBLE:(<DIGIT>)+"."
+    |(<DIGIT>)+"."(<DIGIT>)+
+    |"."(<DIGIT>)+>
+    | < #DIGIT : [ "0"-"9" ] >
+    
+}
+TOKEN:
+{
+    <BREAK:"break">
+    | <ELSE:"else">
+    | <WHILE:"while">
+    | <IF:"if">
+    | <TRUE:"true">
+    |<FALSE:"false">
+    |<WRITE:"write">
+    |<READ:"read">
+    |<END:"end">
+}
+
+
+
+TOKEN:
+{
+    <LC:"(">
+    | <RC:")">
+    | <LM:"[">
+    | <RM:"]">
+    | <LB:"{">
+    | <RB:"}">
+}
+TOKEN:
+{
+    <ID:<LETTER>(<LETTER>| <DIGIT>| "_")*>
+    | <#LETTER:["a"-"z", "A"-"Z","$"]>
+}
+
+ASTstart start():{}{
+    program()<END>{
+        return jjtThis;
+        }
+}
+void program():{}{
+    statement()statements()
+}
+void statements():{}{
+    (program())?
+}
+void statement():{}{
+    assignment()";"
+    |declaration()";"
+    |ifstatement()
+    |whilestatement()
+    |readstatement()";"
+    |writestatement()";"
+}
+
+void ifstatement():{}
+    {
+    <IF><LC>condition()<RC>
+    <LB>statements()<RB>
+    (
+    <ELSE>(<LB>statements()<RB>|statement())
+    )*
+        
+}
+void condition():{}{    expression()(<EQ> expression()#EQNode(2)    | <NE> expression()#NENode(2)    | <GT> expression()#GTNode(2)    | <LT> expression()#LTNode(2)    | <LE> expression()#LENode(2)
+    | <GE> expression()#GENode(2)
+    | <AND> expression()#ANDNode(2)
+    | <OR> expression() #ORNode(2))?}
+void expression():{}{        term()(<PLUS> term() #PLUSNode(2)        | <MINUS> term() #MINUSNode(2))*}
+void term():{}{        (factor())?(<MULTIPLY> factor() #MULTINode(2)        | <DIVIDE> factor() #DIVNode(2)
+        |<MOD>factor() #MODNode(2))*}
+void factor():{}{        id()        | <LC>expression()<RC>        | integer()        | real()
+        | string()
+ 	| bool()}
+void id():{Token t;}{
+    t = <ID>(<LM>expression()<RM>)? {jjtThis.setName(t.image);}
+}
+void integer():{Token t;}{
+t = <INTEGER> {jjtThis.setName(t.image);}
+}
+void string():{Token t;}{
+t = <STRING> {jjtThis.setName(t.image);}
+}
+void real():{Token t;}{
+t = <DOUBLE> {jjtThis.setName(t.image);}
+}
+void bool():{Token t;}{
+t = <TRUE> {jjtThis.setName(t.image);}
+|t = <FALSE> {jjtThis.setName(t.image);}
+}
+
+void whilestatement():{}{
+    <WHILE><LC>condition()<RC>(<LB>statements()<RB>)
+            
+}
+void declaration()#void:{}{
+    intDec()     |realDec()
+    |boolDec() 
+    |charDec()    }
+void intDec():{}{
+<INT> ids()  
+
+}
+void realDec():{}{
+
+<REAL> ids() 
+}
+void boolDec():{}{
+<BOOLEAN> ids()  
+}
+void charDec():{}{
+<CHAR> ids()
+}
+
+
+void ids():{}{
+  id()(<COMMA>id())*
+
+}
+void assignment()#ASSIGNNode(2):{}{
+ ids()<ASSIGN>expression()}
+void readstatement():{}{
+ <READ><LC>id()<RC>
+}
+void writestatement():{}{
+ <WRITE><LC>expression()<RC>
+}
+

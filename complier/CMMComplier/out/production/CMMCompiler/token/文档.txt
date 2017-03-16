@@ -1,0 +1,19 @@
+1。不支持中文注释
+2.不支持int a =9 ,b =10; 支持int a,b =9;
+3.if ,while后面的语句一定要{} else可以没有
+4.支持bool a = True ;和 char a = “ a”;
+4.已用所用按上面三条修改后的用例进行测试，语法和语法树都全部通过
+5.已经可以遍历 子节点接口在simpleNode.java中 注意：若id子节点中接有expression 说明为数组格式id[expression()]
+
+具体显示的方法在simpleNode.java
+  public void dump(String prefix) {
+    System.out.println(toString(prefix));
+    if (children != null) {
+      for (int i = 0; i < children.length; ++i) {
+        SimpleNode n = (SimpleNode)children[i];
+        if (n != null) {
+          n.dump(prefix + " ");
+        }
+      }
+    }
+  }

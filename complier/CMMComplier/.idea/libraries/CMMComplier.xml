@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="CMMComplier">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/CMMComplier_jar/CMMComplier.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
